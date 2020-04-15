@@ -123,11 +123,11 @@ impl CliError
 pub struct Arguments
 {
     /// Defined Arguments
-    args: Vec<String>,
+    pub args: Vec<String>,
     /// Argument Values
-    values: HashMap<String, Vec<String>>,
+    pub values: HashMap<String, Vec<String>>,
     /// List of raw arguments
-    naked_values: Vec<String>
+    pub naked_values: Vec<String>
 }
 
 
@@ -143,7 +143,9 @@ impl Arguments
 
         let mut last_arg = String::from("");
 
-        for arg in raw_args
+        let arg_str_array: Vec<String> = raw_args.collect();
+
+        for arg in &arg_str_array[1..]
         {
             if arg.starts_with("--")
             {
@@ -154,7 +156,7 @@ impl Arguments
                 }
 
                 args.push(arg.clone());
-                last_arg = arg;
+                last_arg = arg.clone();
             }
             else if arg.starts_with("-")
             {
@@ -167,7 +169,7 @@ impl Arguments
                 if arg.len() == 2
                 {
                     args.push(arg.clone());
-                    last_arg = arg;
+                    last_arg = arg.clone();
                 }
                 else
                 {
@@ -184,8 +186,14 @@ impl Arguments
             }
             else
             {
-                naked_values.push(arg);
+                naked_values.push(arg.clone());
             }
+        }
+
+        if naked_values.len() != 0
+        {
+            values.insert(last_arg.clone(), naked_values);
+            naked_values = vec![];
         }
 
         Arguments
