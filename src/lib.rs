@@ -192,8 +192,7 @@ impl Arguments
 
         if naked_values.len() != 0
         {
-            values.insert(last_arg.clone(), naked_values);
-            naked_values = vec![];
+            values.insert(last_arg.clone(), naked_values.clone());
         }
 
         Arguments
