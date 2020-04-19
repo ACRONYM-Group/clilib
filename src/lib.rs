@@ -41,13 +41,13 @@ impl CliError
     }
 
     /// Generate a new Err(CliError) with level ErrorLevel::Warning
-    pub fn warn(msg: &str, error_code: i32) -> Result<(), CliError>
+    pub fn warn<T>(msg: &str, error_code: i32) -> Result<T, CliError>
     {
         Err(CliError::new(msg, error_code, ErrorLevel::Warning))
     }
 
     /// Generate a new Err(CliError) with level ErrorLevel::Error
-    pub fn error(msg: &str, error_code: i32) -> Result<(), CliError>
+    pub fn error<T>(msg: &str, error_code: i32) -> Result<T, CliError>
     {
         Err(CliError::new(msg, error_code, ErrorLevel::Error))
     }
@@ -204,9 +204,9 @@ impl Arguments
     }
 
     /// Extract a single value passed as the value of an option
-    pub fn get_single(&self, key: String) -> Option<String>
+    pub fn get_single(&self, key: &str) -> Option<String>
     {
-        match self.values.get(&key)
+        match self.values.get(&String::from(key))
         {
             Some(s) => 
             {
@@ -224,9 +224,34 @@ impl Arguments
     }
 
     /// Checks if an argument was given
-    pub fn check_arg(&self, arg: String) -> bool
+    pub fn check_arg(&self, arg: &str) -> bool
     {
-        self.args.contains(&arg)
+        self.args.contains(&String::from(arg))
+    }
+
+    /// Get Passed value
+    pub fn get_passed<T: std::str::FromStr>(&self, arg: &str) -> Option<T>
+    {
+        if !self.check_arg(arg)
+        {
+            return None;
+        }
+
+        match self.get_single(arg)
+        {
+            Some(s) =>
+            {
+                match s.parse::<T>()
+                {
+                    Ok(v) => Some(v),
+                    Err(_) => None
+                }
+            },
+            None =>
+            {
+                None
+            }
+        }
     }
 }
 
