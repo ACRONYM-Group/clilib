@@ -17,11 +17,11 @@ pub enum ErrorLevel
 pub struct CliError
 {
     /// Error Message
-    error: String,
+    pub error: String,
     /// Error Code
     pub error_code: i32,
     /// Error Level
-    error_level: ErrorLevel,
+    pub error_level: ErrorLevel,
     /// Has the error been reported to the user yet?
     reported: bool
 }
