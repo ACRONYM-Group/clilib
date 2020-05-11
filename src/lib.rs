@@ -253,6 +253,31 @@ impl Arguments
             }
         }
     }
+
+    /// Get a passed value while checking if the result is None, and if so it returns a CliError
+    pub fn get_passed_checked<T: std::str::FromStr>(&self, arg: &str) -> Result<T, CliError>
+    {
+        if !self.check_arg(arg)
+        {
+            return CliError::error(&format!("No '{}' option passed", arg), 1);
+        }
+
+        match self.get_single(arg)
+        {
+            Some(s) =>
+            {
+                match s.parse::<T>()
+                {
+                    Ok(v) => Ok(v),
+                    Err(_) => CliError::error(&format!("Cannot parse argument to '{}'", arg), 1)
+                }
+            },
+            None =>
+            {
+                CliError::error(&format!("No argument passed to '{}'", arg), 1)
+            }
+        }
+    }
 }
 
 
@@ -531,5 +556,117 @@ impl GridDisplay
     pub fn display(&self)
     {
         print!("{}", self.render());
+    }
+}
+
+/// Help Option Entry
+#[derive(Debug, Clone)]
+pub struct OptionEntry
+{
+    /// Short name
+    short: String,
+    /// Long name
+    long: String,
+    /// Extra Info
+    extra: String,
+    /// Description
+    description: String
+}
+
+impl OptionEntry
+{
+    /// Generate a new OptionEntry object
+    pub fn new(short: &str, long: &str, extra: &str, description: &str) -> Self
+    {
+        Self
+        {
+            short: String::from(short),
+            long: String::from(long),
+            extra: String::from(extra),
+            description: String::from(description)
+        }
+    }
+}
+
+impl std::fmt::Display for OptionEntry
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        let short_part = 
+        if self.short != ""
+        {
+            if self.long != ""
+            {
+                format!("-{},", self.short)
+            }
+            else
+            {
+                format!("-{}", self.short)
+            }
+        }
+        else
+        {
+            String::new()
+        };
+
+        let long_part = 
+        if self.long != ""
+        {
+            format!("--{} {}", self.long, self.extra)
+        }
+        else
+        {
+            format!(" {}", self.extra)
+        };
+
+        write!(f, "  {:4}{:27} {}", short_part, long_part, self.description)
+    }
+}
+
+/// Help Display
+#[derive(Debug, Clone)]
+pub struct HelpDisplay
+{
+    /// Usage
+    usage: String,
+    /// Description
+    description: String,
+    /// Entries
+    entries: Vec<OptionEntry>
+}
+
+impl HelpDisplay
+{
+    /// Generate a new HelpDisplay object from the usage string and the description
+    /// string
+    pub fn new(usage: &str, description: &str) -> Self
+    {
+        Self
+        {
+            usage: String::from(usage),
+            description: String::from(description),
+            entries: vec![]
+        }
+    }
+
+    /// Add another command line option
+    pub fn add_option(&mut self, entry: OptionEntry)
+    {
+        self.entries.push(entry);
+    }
+}
+
+impl std::fmt::Display for HelpDisplay
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "Usage: {}\n{}\n\n", self.usage, self.description)?;
+
+        for entry in &self.entries
+        {
+            write!(f, "{}\n", entry)?;
+        }
+
+        write!(f, "\n")
     }
 }
