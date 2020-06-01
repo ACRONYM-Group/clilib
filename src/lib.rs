@@ -612,11 +612,11 @@ impl std::fmt::Display for OptionEntry
         let long_part = 
         if self.long != ""
         {
-            format!("--{} {}", self.long, self.extra)
+            format!("--{:10} {}", self.long, self.extra)
         }
         else
         {
-            format!(" {}", self.extra)
+            format!("            {}", self.extra)
         };
 
         write!(f, "  {:4}{:27} {}", short_part, long_part, self.description)
