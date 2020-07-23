@@ -193,7 +193,6 @@ impl Arguments
         if naked_values.len() != 0
         {
             values.insert(last_arg.clone(), naked_values[0].clone());
-            naked_values.remove(0);
         }
 
         Arguments
