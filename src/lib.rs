@@ -125,7 +125,7 @@ pub struct Arguments
     /// Defined Arguments
     pub args: Vec<String>,
     /// Argument Values
-    pub values: HashMap<String, Vec<String>>,
+    pub values: HashMap<String, String>,
     /// List of raw arguments
     pub naked_values: Vec<String>
 }
@@ -139,7 +139,7 @@ impl Arguments
         let mut args: Vec<String> = vec![];
         let mut naked_values: Vec<String> = vec![];
 
-        let mut values: HashMap<String, Vec<String>> = HashMap::new();
+        let mut values: HashMap<String, String> = HashMap::new();
 
         let mut last_arg = String::from("");
 
@@ -151,7 +151,7 @@ impl Arguments
             {
                 if naked_values.len() != 0
                 {
-                    values.insert(last_arg.clone(), naked_values);
+                    values.insert(last_arg.clone(), if naked_values.len() > 0 {naked_values[0].clone()} else {String::new()});
                     naked_values = vec![];
                 }
 
@@ -162,7 +162,7 @@ impl Arguments
             {
                 if naked_values.len() != 0
                 {
-                    values.insert(last_arg.clone(), naked_values);
+                    values.insert(last_arg.clone(), if naked_values.len() > 0 {naked_values[0].clone()} else {String::new()});
                     naked_values = vec![];
                 }
 
@@ -192,7 +192,8 @@ impl Arguments
 
         if naked_values.len() != 0
         {
-            values.insert(last_arg.clone(), naked_values.clone());
+            values.insert(last_arg.clone(), naked_values[0].clone());
+            naked_values.remove(0);
         }
 
         Arguments
@@ -212,7 +213,7 @@ impl Arguments
             {
                 if s.len() > 0
                 {
-                    Some(s[0].clone())
+                    Some(s.clone())
                 }
                 else
                 {
